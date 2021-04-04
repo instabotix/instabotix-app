@@ -1,0 +1,6 @@
+{
+	"userName" : "UserTester",
+	"productID" : "90",
+	"initialComment" : "Quero comprar"
+	
+}   
