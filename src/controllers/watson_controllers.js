@@ -1,78 +1,58 @@
 const config = require('../config');
-const AssistantV2 = require('ibm-watson/assistant/v2');
-const { IamAuthenticator } = require('ibm-watson/auth');
+const assistant = require('../functions/watson_actions')
 
-const Interaction = require('../schema/userInteraction');
+const Interaction = require('../schema/interaction_schema');
 
 
 // rota para geração de Token de uma sessão com o usuário no IBM Watson Assistant
 
-const gerarToken = async (req, res, next) => {
+const firstContact =  (req, res, next) => {
+
     let receivedUserName  = req.body.userName;
     let receivedComment   = req.body.initialComment;
     let receivedProductID = req.body.productID;
-
-    // Config do Watson Assistant
-    const assistant = new AssistantV2({
-        version: '2020-04-01',
-        authenticator: new IamAuthenticator({
-            apikey: config.ibm.apikey,
-        }),
-        serviceUrl: config.ibm.url,
-    });
+    
 
     // Criar nova sessão no Watson
     assistant.createSession({
         assistantId: config.ibm.assistant_id
     })
     .then((session) => {
+        var watsonToken = session.result.session_id;
+
         Interaction.create({
-            ibmToken: session.result.session_id,
-            userName: receivedUserName,
+            ibmToken: watsonToken,
+            userName: receivedUserName, 
             initialComment: receivedComment,
             productID: receivedProductID,
         })
         .then((doc) => {
-            console.log(doc);
+            // console.log(doc);
             res.status(200);
-        })
-        .catch(next);
+
+            assistant.message({
+                assistantId: config.ibm.assistant_id,
+                sessionId: watsonToken,
+                input: {
+                    'message_type': 'text',
+                    'text': receivedComment
+                }
+            })
+            .then(res => {
+                // var respostaWatson = JSON.stringify(res.result, null, 2)
+                // var respostaWatson = JSON.stringify(res.result.output.generic[0].text)
+                // console.log(respostaWatson);
+                console.log(res.result.output.generic[0].text) 
+          
+            })
+            .catch(err => {
+                console.log(err);
+            });
+            })
     })
-    .catch(next);
 };
 
 
-// Rota para envio de mensagem entre API bot e o IBM Watson Assistant
-
-const sendMessage = () => {
-    const assistant = new AssistantV2({
-        version: '2020-04-01',
-        authenticator: new IamAuthenticator({
-            apikey: config.ibm.apikey,
-        }),
-        serviceUrl: config.ibm.url,
-    });
-    
-    assistant.message({
-        assistantId: config.ibm.assistant_id,
-        sessionId: sessionIDuser,
-        input: {
-            'message_type': 'text',
-            'text': 'Hello'
-        }
-    })
-    .then(res => {
-        console.log(JSON.stringify(res.result, null, 2));
-    })
-    .catch(err => {
-        console.log(err);
-    });
-};
 
 
-const incomingWatson = () => {
-
-};
-
-
-module.exports = {gerarToken, sendMessage, incomingWatson};
+module.exports = {firstContact};

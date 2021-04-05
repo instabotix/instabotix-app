@@ -1,0 +1,39 @@
+{
+    "output": {
+      "intents": [
+        {
+          "intent": "action_19892_intent_25125",
+          "confidence": 1
+        }
+      ],
+      "entities": [],
+      "generic": [
+        {
+          "response_type": "text",
+          "text": "Olá, tudo bem? 😁\nVimos que gostou  do nosso Creme - 100% vegano. Que bom, ela está numa ótima promoção. Você teria interesse?"
+        },
+        {
+          "options": [
+            {
+              "label": "Sim",
+              "value": {
+                "input": {
+                  "text": "Sim"
+                }
+              }
+            },
+            {
+              "label": "Não",
+              "value": {
+                "input": {
+                  "text": "Não"
+                }
+              }
+            }
+          ],
+          "response_type": "option"
+        }
+      ]
+    },
+    "user_id": "1996394f-61e2-4158-a640-b02885139a18"
+  }
